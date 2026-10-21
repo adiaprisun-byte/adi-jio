@@ -1,0 +1,6 @@
+{
+  "name": "BlueWave Recharge - Modern Telecom & Smart Data Wallet",
+  "description": "Indian telecom self-service and recharge web application with Smart Data Wallet Unused Data Carry Forward, prepaid plans catalog, and native Android Jetpack Compose project architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
