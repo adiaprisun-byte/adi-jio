@@ -694,6 +694,152 @@ dependencies {
 `,
   },
   {
+    path: 'app/src/main/java/com/bluewave/recharge/ui/screens/DataMarketScreen.kt',
+    name: 'DataMarketScreen.kt',
+    language: 'kotlin',
+    category: 'UI (Jetpack Compose)',
+    description: 'Jetpack Compose screen for P2P Domestic Data Board and Global High-Cost Country Arbitrage',
+    content: `package com.bluewave.recharge.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.bluewave.recharge.domain.CarryForwardEngine
+
+data class GlobalCountryMarketDto(
+    val id: String,
+    val name: String,
+    val flag: String,
+    val touristCostUsd: Double,
+    val payoutInrPerGb: Int,
+    val demand: String
+)
+
+@Composable
+fun DataMarketScreen(
+    availableBytes: Long,
+    cashBalanceInr: Int,
+    onExportToCountry: (countryId: String, gigabytes: Int) -> Unit,
+    onBuyPeerData: (listingId: String) -> Unit,
+    onWithdrawToUpi: (amount: Int) -> Unit
+) {
+    var selectedTab by remember { mutableStateOf(0) }
+    val tabs = listOf("Global Arbitrage", "Buy Peer Data", "Sell Data")
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF4F7FB))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Cash Earnings Header Card
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A))
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text("EARNINGS WALLET", color = Color(0xFF38BDF8), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("₹\$cashBalanceInr", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Black)
+                    Button(
+                        onClick = { onWithdrawToUpi(cashBalanceInr) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Instant UPI Payout", fontSize = 12.sp)
+                    }
+                }
+                Text(
+                    "Export unused carry-forward data to high-cost countries or sell peer-to-peer",
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+
+        // Tab Selector
+        TabRow(
+            selectedTabIndex = selectedTab,
+            containerColor = Color.White,
+            contentColor = Color(0xFF0056B3)
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = { selectedTab = index },
+                    text = { Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                )
+            }
+        }
+
+        // Global High-Cost Countries List
+        if (selectedTab == 0) {
+            val countries = listOf(
+                GlobalCountryMarketDto("ch", "Switzerland", "🇨🇭", 19.5, 340, "Critical Demand"),
+                GlobalCountryMarketDto("bm", "Bermuda", "🇧🇲", 35.0, 520, "Surge Pricing"),
+                GlobalCountryMarketDto("ae", "United Arab Emirates", "🇦🇪", 22.0, 390, "Surge Pricing"),
+                GlobalCountryMarketDto("us", "United States", "🇺🇸", 15.0, 280, "High Demand")
+            )
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(countries) { country ->
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text(country.flag, fontSize = 22.sp)
+                                    Text(country.name, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                }
+                                Text(
+                                    "Retail: $\${country.touristCostUsd}/GB · Payout: ₹\${country.payoutInrPerGb}/GB",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFF059669),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                            Button(
+                                onClick = { onExportToCountry(country.id, 1) },
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0056B3))
+                            ) {
+                                Text("Export 1GB", fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+`,
+  },
+  {
     path: 'README.md',
     name: 'AndroidStudio_Setup.md',
     language: 'markdown',

@@ -14,6 +14,12 @@ import {
   PaymentTransaction,
   TelecomNotification,
   PaymentMethod,
+  P2PListing,
+  GlobalCountryMarket,
+  UserEarningsWallet,
+  P2PTradeRecord,
+  TelecomProfileWallet,
+  WalletTransactionRecord,
 } from '../types/telecom';
 import {
   createInitialWalletState,
@@ -23,6 +29,11 @@ import {
   formatBytes,
 } from '../engine/CarryForwardEngine';
 import { INITIAL_PLANS } from '../data/plansCatalog';
+import {
+  GLOBAL_HIGH_COST_COUNTRIES,
+  INITIAL_P2P_LISTINGS,
+  INITIAL_TRADE_RECORDS,
+} from '../data/marketplaceData';
 
 export interface TelecomContextType {
   userProfile: UserProfile;
@@ -38,6 +49,12 @@ export interface TelecomContextType {
   viewMode: 'web' | 'mobile_simulator';
   isMaskedMobile: boolean;
   
+  // P2P Data Market & Global Roaming Arbitrage
+  p2pListings: P2PListing[];
+  globalMarkets: GlobalCountryMarket[];
+  earningsWallet: UserEarningsWallet;
+  profileWallet: TelecomProfileWallet;
+
   // Actions
   toggleMaskMobile: () => void;
   setLanguage: (lang: 'en' | 'hi') => void;
@@ -57,6 +74,12 @@ export interface TelecomContextType {
   addPlanAdmin: (plan: RechargePlan) => void;
   markNotificationsRead: () => void;
   dismissNotification: (id: string) => void;
+  sellDataToGlobalMarket: (countryId: string, gigabytes: number) => { success: boolean; earnedInr: number };
+  createP2PListing: (amountBytes: number, priceInr: number) => { success: boolean; listing: P2PListing };
+  buyPeerListing: (listingId: string) => { success: boolean; message: string };
+  withdrawEarningsToUPI: (amountInr: number, upiId: string) => { success: boolean; txId: string };
+  topUpProfileWallet: (amountInr: number, method: string) => { success: boolean; txId: string };
+  toggleAutoRecharge: (enabled: boolean) => void;
 }
 
 const TelecomContext = createContext<TelecomContextType | undefined>(undefined);
@@ -353,6 +376,273 @@ export const TelecomProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setPlans((prev) => [newPlan, ...prev]);
   };
 
+  const [p2pListings, setP2pListings] = useState<P2PListing[]>(INITIAL_P2P_LISTINGS);
+  const [globalMarkets] = useState<GlobalCountryMarket[]>(GLOBAL_HIGH_COST_COUNTRIES);
+  const [earningsWallet, setEarningsWallet] = useState<UserEarningsWallet>({
+    cashBalanceInr: 355,
+    totalEarnedInr: 1480,
+    totalDataSoldBytes: 4.5 * ONE_GB,
+    totalDataBoughtBytes: 1.0 * ONE_GB,
+    payoutUpiId: 'aaditya@okhdfcbank',
+    recentTrades: INITIAL_TRADE_RECORDS,
+  });
+
+  const sellDataToGlobalMarket = (countryId: string, gigabytes: number) => {
+    const market = globalMarkets.find((m) => m.id === countryId);
+    if (!market || gigabytes <= 0) return { success: false, earnedInr: 0 };
+    const bytesToSell = Math.round(gigabytes * ONE_GB);
+    const earnedInr = Math.round(gigabytes * market.payoutInrPerGb);
+
+    const { nextState, ledgerEntries } = CarryForwardEngine.sellData(
+      walletState,
+      bytesToSell,
+      `Global RoamPool (${market.countryName} ${market.flag})`,
+      earnedInr
+    );
+
+    setWalletState(nextState);
+    if (ledgerEntries.length > 0) {
+      setLedger((prev) => [...ledgerEntries, ...prev]);
+    }
+
+    const tradeRecord: P2PTradeRecord = {
+      id: `trd-${Date.now()}`,
+      timestamp: Date.now(),
+      type: 'SELL_GLOBAL',
+      amountBytes: bytesToSell,
+      amountInr: earnedInr,
+      counterparty: `Global RoamBridge (${market.countryCode})`,
+      countryOrPeer: `${market.countryName} ${market.flag}`,
+      status: 'COMPLETED',
+      payoutMethod: 'Direct Credit to BlueWave Cash Wallet (UPI ready)',
+    };
+
+    setEarningsWallet((prev) => ({
+      ...prev,
+      cashBalanceInr: prev.cashBalanceInr + earnedInr,
+      totalEarnedInr: prev.totalEarnedInr + earnedInr,
+      totalDataSoldBytes: prev.totalDataSoldBytes + bytesToSell,
+      recentTrades: [tradeRecord, ...prev.recentTrades],
+    }));
+
+    setNotifications((prev) => [
+      {
+        id: `notif-sell-${Date.now()}`,
+        title: `Data Export Completed! Earned ₹${earnedInr}`,
+        message: `Successfully exported ${formatBytes(bytesToSell)} to ${market.countryName} ${market.flag}. ₹${earnedInr} has been credited to your cash balance!`,
+        timestamp: Date.now(),
+        type: 'DATA_SAVED',
+        read: false,
+      },
+      ...prev,
+    ]);
+
+    return { success: true, earnedInr };
+  };
+
+  const createP2PListing = (amountBytes: number, priceInr: number) => {
+    const { nextState, ledgerEntries } = CarryForwardEngine.sellData(
+      walletState,
+      amountBytes,
+      'P2P Marketplace Escrow',
+      priceInr
+    );
+    setWalletState(nextState);
+    if (ledgerEntries.length > 0) {
+      setLedger((prev) => [...ledgerEntries, ...prev]);
+    }
+
+    const newListing: P2PListing = {
+      id: `p2p-my-${Date.now()}`,
+      sellerName: userProfile.name,
+      sellerMaskedMobile: userProfile.maskedMobile,
+      amountBytes,
+      priceInr,
+      status: 'ACTIVE',
+      createdTimestamp: Date.now(),
+      expiresTimestamp: Date.now() + 12 * 3600 * 1000,
+      verifiedNetwork: 'BlueWave 5G',
+      isOwnListing: true,
+    };
+
+    setP2pListings((prev) => [newListing, ...prev]);
+
+    setNotifications((prev) => [
+      {
+        id: `notif-list-${Date.now()}`,
+        title: 'P2P Listing Published',
+        message: `Your listing for ${formatBytes(amountBytes)} at ₹${priceInr} is now live in the marketplace.`,
+        timestamp: Date.now(),
+        type: 'DATA_SAVED',
+        read: false,
+      },
+      ...prev,
+    ]);
+
+    return { success: true, listing: newListing };
+  };
+
+  const buyPeerListing = (listingId: string) => {
+    const listing = p2pListings.find((l) => l.id === listingId);
+    if (!listing || listing.status !== 'ACTIVE') {
+      return { success: false, message: 'Listing is no longer available' };
+    }
+
+    // Add data to buyer's wallet
+    const { nextState, ledgerEntries } = CarryForwardEngine.buyData(
+      walletState,
+      listing.amountBytes,
+      listing.sellerName,
+      listing.priceInr
+    );
+    setWalletState(nextState);
+    if (ledgerEntries.length > 0) {
+      setLedger((prev) => [...ledgerEntries, ...prev]);
+    }
+
+    // Mark listing as SOLD
+    setP2pListings((prev) =>
+      prev.map((l) => (l.id === listingId ? { ...l, status: 'SOLD' } : l))
+    );
+
+    const tradeRecord: P2PTradeRecord = {
+      id: `trd-buy-${Date.now()}`,
+      timestamp: Date.now(),
+      type: 'BUY_PEER',
+      amountBytes: listing.amountBytes,
+      amountInr: listing.priceInr,
+      counterparty: `${listing.sellerName} (${listing.sellerMaskedMobile})`,
+      countryOrPeer: 'Peer Direct (Domestic)',
+      status: 'COMPLETED',
+      payoutMethod: 'Paid via BlueWave UPI',
+    };
+
+    setEarningsWallet((prev) => ({
+      ...prev,
+      totalDataBoughtBytes: prev.totalDataBoughtBytes + listing.amountBytes,
+      recentTrades: [tradeRecord, ...prev.recentTrades],
+    }));
+
+    setNotifications((prev) => [
+      {
+        id: `notif-buy-${Date.now()}`,
+        title: 'Peer Data Added to Wallet!',
+        message: `Added ${formatBytes(listing.amountBytes)} from ${listing.sellerName} to your Carry Forward balance for ₹${listing.priceInr}.`,
+        timestamp: Date.now(),
+        type: 'RECHARGE_SUCCESS',
+        read: false,
+      },
+      ...prev,
+    ]);
+
+    return { success: true, message: `Successfully bought ${formatBytes(listing.amountBytes)}` };
+  };
+
+  const withdrawEarningsToUPI = (amountInr: number, upiId: string) => {
+    if (amountInr <= 0 || amountInr > earningsWallet.cashBalanceInr) {
+      return { success: false, txId: '' };
+    }
+    const txId = `WTH-UPI-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    setEarningsWallet((prev) => ({
+      ...prev,
+      cashBalanceInr: prev.cashBalanceInr - amountInr,
+      payoutUpiId: upiId || prev.payoutUpiId,
+    }));
+
+    setNotifications((prev) => [
+      {
+        id: `notif-wth-${Date.now()}`,
+        title: `Withdrawal Successful: ₹${amountInr}`,
+        message: `₹${amountInr} has been transferred directly to your UPI VPA (${upiId || earningsWallet.payoutUpiId}). Ref: ${txId}`,
+        timestamp: Date.now(),
+        type: 'DATA_SAVED',
+        read: false,
+      },
+      ...prev,
+    ]);
+
+    return { success: true, txId };
+  };
+
+  // Dedicated Profile Telecom & Cash Wallet State
+  const [profileWallet, setProfileWallet] = useState<TelecomProfileWallet>({
+    cashBalanceInr: 355,
+    telecomCreditBalanceInr: 150,
+    autoRechargeEnabled: true,
+    linkedUpiVpa: 'aaditya@okhdfcbank',
+    tierStatus: 'BlueWave Signature Diamond',
+    transactions: [
+      {
+        id: 'wtx-01',
+        timestamp: Date.now() - 2 * 24 * 3600 * 1000,
+        type: 'GLOBAL_EXPORT',
+        amountInr: 340,
+        description: 'Exported 1 GB to Switzerland RoamPool (Earned ₹340)',
+        referenceId: 'BW-GLB-902184',
+        status: 'SUCCESS',
+      },
+      {
+        id: 'wtx-02',
+        timestamp: Date.now() - 4 * 24 * 3600 * 1000,
+        type: 'CASHBACK',
+        amountInr: 50,
+        description: 'True 5G Unlimited Activation Cashback Bonus',
+        referenceId: 'BW-CBK-441029',
+        status: 'SUCCESS',
+      },
+      {
+        id: 'wtx-03',
+        timestamp: Date.now() - 7 * 24 * 3600 * 1000,
+        type: 'TOPUP',
+        amountInr: 500,
+        description: 'Prepaid Wallet Top-up via UPI (GPay)',
+        referenceId: 'BW-TOP-881920',
+        status: 'SUCCESS',
+      },
+    ],
+  });
+
+  const topUpProfileWallet = (amountInr: number, method: string) => {
+    if (amountInr <= 0) return { success: false, txId: '' };
+    const txId = `TOP-UPI-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    const newTx: WalletTransactionRecord = {
+      id: `wtx-${Date.now()}`,
+      timestamp: Date.now(),
+      type: 'TOPUP',
+      amountInr,
+      description: `Added ₹${amountInr} to Wallet via ${method}`,
+      referenceId: txId,
+      status: 'SUCCESS',
+    };
+
+    setProfileWallet((prev) => ({
+      ...prev,
+      telecomCreditBalanceInr: prev.telecomCreditBalanceInr + amountInr,
+      transactions: [newTx, ...prev.transactions],
+    }));
+
+    setNotifications((prev) => [
+      {
+        id: `notif-topup-${Date.now()}`,
+        title: `Wallet Top-Up Successful!`,
+        message: `₹${amountInr} added to your BlueWave Telecom Wallet via ${method}.`,
+        timestamp: Date.now(),
+        type: 'RECHARGE_SUCCESS',
+        read: false,
+      },
+      ...prev,
+    ]);
+
+    return { success: true, txId };
+  };
+
+  const toggleAutoRecharge = (enabled: boolean) => {
+    setProfileWallet((prev) => ({
+      ...prev,
+      autoRechargeEnabled: enabled,
+    }));
+  };
+
   return (
     <TelecomContext.Provider
       value={{
@@ -382,6 +672,16 @@ export const TelecomProvider: React.FC<{ children: React.ReactNode }> = ({ child
         addPlanAdmin,
         markNotificationsRead,
         dismissNotification,
+        p2pListings,
+        globalMarkets,
+        earningsWallet,
+        profileWallet,
+        sellDataToGlobalMarket,
+        createP2PListing,
+        buyPeerListing,
+        withdrawEarningsToUPI,
+        topUpProfileWallet,
+        toggleAutoRecharge,
       }}
     >
       {children}

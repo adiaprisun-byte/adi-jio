@@ -15,6 +15,7 @@ import { MyDataScreen } from './components/mydata/MyDataScreen';
 import { HistoryScreen } from './components/history/HistoryScreen';
 import { ProfileScreen } from './components/profile/ProfileScreen';
 import { AndroidCodeInspector } from './components/android/AndroidCodeInspector';
+import { DataMarketScreen } from './components/market/DataMarketScreen';
 import { RechargePlan } from './types/telecom';
 import { Radio, ShieldCheck, Heart } from 'lucide-react';
 
@@ -24,7 +25,7 @@ function AppContent() {
   const { viewMode } = useTelecom();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#060B14] text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
       {/* Top Header */}
       <TopBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
@@ -44,7 +45,11 @@ function AppContent() {
             />
           )}
 
-          {activeTab === 'mydata' && <MyDataScreen />}
+          {activeTab === 'mydata' && (
+            <MyDataScreen onNavigateTab={(tab) => setActiveTab(tab)} />
+          )}
+
+          {activeTab === 'market' && <DataMarketScreen />}
 
           {activeTab === 'history' && <HistoryScreen />}
 
@@ -68,22 +73,22 @@ function AppContent() {
       {/* Mobile Bottom Navigation Bar */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Quiet Desktop Footer */}
+      {/* Luxury Footer */}
       {viewMode === 'web' && (
-        <footer className="mt-auto bg-white border-t border-slate-200 py-8 px-4 text-xs text-slate-500">
+        <footer className="mt-auto bg-slate-950/80 backdrop-blur-md border-t border-white/10 py-8 px-4 text-xs text-slate-400">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-blue-900">BlueWave Recharge</span>
+              <span className="font-extrabold text-white">BlueWave Signature Telecom</span>
               <span>·</span>
-              <span>Original Telecom Identity</span>
+              <span className="text-slate-400">Original Carrier Architecture</span>
               <span>·</span>
-              <span>Smart Data Wallet Engine</span>
+              <span className="text-cyan-400 font-medium">Smart Data Wallet & RoamBridge</span>
             </div>
 
             <div className="flex items-center gap-4 text-slate-400">
               <span>Demo Sandbox Environment</span>
               <span>·</span>
-              <span>No Real Network Charge</span>
+              <span>256-Bit Encrypted Wallet</span>
               <span>·</span>
               <span>Android Jetpack Compose Ready</span>
             </div>

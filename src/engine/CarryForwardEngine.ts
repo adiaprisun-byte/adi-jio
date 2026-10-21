@@ -362,6 +362,120 @@ export class CarryForwardEngine {
       },
     };
   }
+
+  /**
+   * Sells data from user's wallet (prefers carry-forward balance, falls back to daily remaining).
+   * Emits DATA_SOLD ledger entry.
+   */
+  public static sellData(
+    state: SmartDataWalletState,
+    bytesToSell: number,
+    destinationLabel: string,
+    payoutInr: number
+  ): { nextState: SmartDataWalletState; ledgerEntries: LedgerEntry[] } {
+    if (bytesToSell <= 0) return { nextState: state, ledgerEntries: [] };
+
+    const currentCarry = state.carryForwardBalanceBytes;
+    const currentDailyRemaining = state.dailyQuotaBytes - state.dailyUsedBytes;
+    let newDailyUsed = state.dailyUsedBytes;
+    let newCarry = currentCarry;
+    let updatedBuckets = [...state.buckets];
+
+    // Deduct from carry forward first
+    if (bytesToSell <= currentCarry) {
+      newCarry = currentCarry - bytesToSell;
+      let remainingToDeduct = bytesToSell;
+      updatedBuckets = updatedBuckets
+        .map((bkt) => {
+          if (remainingToDeduct <= 0) return bkt;
+          const deduct = Math.min(bkt.remainingBytes, remainingToDeduct);
+          remainingToDeduct -= deduct;
+          return { ...bkt, remainingBytes: bkt.remainingBytes - deduct };
+        })
+        .filter((b) => b.remainingBytes > 0);
+    } else {
+      const fromCarry = currentCarry;
+      const fromDaily = bytesToSell - fromCarry;
+      newCarry = 0;
+      updatedBuckets = [];
+      newDailyUsed = Math.min(state.dailyQuotaBytes, state.dailyUsedBytes + fromDaily);
+    }
+
+    const nextDailyRemaining = state.dailyQuotaBytes - newDailyUsed;
+    const nextTotal = nextDailyRemaining + newCarry;
+
+    const nextState: SmartDataWalletState = {
+      ...state,
+      dailyUsedBytes: newDailyUsed,
+      dailyRemainingBytes: nextDailyRemaining,
+      carryForwardBalanceBytes: newCarry,
+      buckets: updatedBuckets,
+      totalEligibleDataBytes: nextTotal,
+    };
+
+    const entry: LedgerEntry = {
+      id: `ledg-sold-${Date.now()}`,
+      timestamp: Date.now(),
+      type: 'DATA_SOLD',
+      amountBytes: bytesToSell,
+      previousDailyBytes: currentDailyRemaining,
+      newDailyBytes: nextDailyRemaining,
+      previousCarryForwardBytes: currentCarry,
+      newCarryForwardBytes: newCarry,
+      description: `Sold ${formatBytes(bytesToSell)} to ${destinationLabel} (Earned ₹${payoutInr})`,
+      dayNumber: state.currentSimulatedDay,
+    };
+
+    return { nextState, ledgerEntries: [entry] };
+  }
+
+  /**
+   * Adds purchased peer data into user's Carry Forward bucket.
+   * Emits DATA_BOUGHT ledger entry.
+   */
+  public static buyData(
+    state: SmartDataWalletState,
+    bytesToBuy: number,
+    sellerLabel: string,
+    costInr: number
+  ): { nextState: SmartDataWalletState; ledgerEntries: LedgerEntry[] } {
+    if (bytesToBuy <= 0) return { nextState: state, ledgerEntries: [] };
+
+    const now = Date.now();
+    const prevCarry = state.carryForwardBalanceBytes;
+    const newCarry = prevCarry + bytesToBuy;
+
+    const newBucket: CarryForwardBucket = {
+      id: `bkt-p2p-${now}`,
+      sourceDate: 'P2P Bought',
+      initialBytes: bytesToBuy,
+      remainingBytes: bytesToBuy,
+      expiryTimestamp: now + 7 * 24 * 60 * 60 * 1000,
+      isExpired: false,
+    };
+
+    const nextState: SmartDataWalletState = {
+      ...state,
+      carryForwardBalanceBytes: newCarry,
+      buckets: [...state.buckets, newBucket],
+      totalEligibleDataBytes: state.dailyRemainingBytes + newCarry,
+    };
+
+    const entry: LedgerEntry = {
+      id: `ledg-bought-${now}`,
+      timestamp: now,
+      type: 'DATA_BOUGHT',
+      amountBytes: bytesToBuy,
+      previousDailyBytes: state.dailyRemainingBytes,
+      newDailyBytes: state.dailyRemainingBytes,
+      previousCarryForwardBytes: prevCarry,
+      newCarryForwardBytes: newCarry,
+      description: `Bought ${formatBytes(bytesToBuy)} from peer ${sellerLabel} for ₹${costInr}`,
+      dayNumber: state.currentSimulatedDay,
+    };
+
+    return { nextState, ledgerEntries: [entry] };
+  }
 }
 
 /**

@@ -10,6 +10,7 @@ import {
   Home,
   Zap,
   Wallet,
+  Globe2,
   Clock,
   User,
   Code2,
@@ -28,17 +29,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab })
     { id: 'home', label: t.home, icon: Home },
     { id: 'recharge', label: t.recharge, icon: Zap },
     { id: 'mydata', label: t.myData, icon: Wallet },
+    { id: 'market', label: 'Trade', icon: Globe2 },
     { id: 'history', label: t.history, icon: Clock },
     { id: 'profile', label: t.profile, icon: User },
-    { id: 'android', label: 'Android Code', icon: Code2 },
+    { id: 'android', label: 'Android', icon: Code2 },
   ];
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg pb-safe"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/90 backdrop-blur-xl border-t border-white/10 shadow-2xl shadow-black/80 pb-safe"
       aria-label="Mobile Bottom Navigation"
     >
-      <div className="grid grid-cols-6 items-center h-16 px-1">
+      <div className="grid grid-cols-7 items-center h-16 px-1">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -47,22 +49,22 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab })
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center justify-center min-h-[44px] py-1 transition-colors cursor-pointer ${
-                isActive ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'
+                isActive ? 'text-cyan-400' : 'text-slate-400 hover:text-white'
               }`}
             >
               <div className="relative">
                 <Icon
                   className={`w-5 h-5 transition-transform ${
-                    isActive ? 'scale-110 stroke-[2.4]' : 'stroke-[1.8]'
+                    isActive ? 'scale-110 stroke-[2.4] text-cyan-400' : 'stroke-[1.8]'
                   }`}
                 />
                 {item.id === 'mydata' && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-blue-600" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400" />
                 )}
               </div>
               <span
                 className={`text-[10px] tracking-tight mt-1 truncate max-w-[56px] ${
-                  isActive ? 'font-bold text-blue-600' : 'font-medium'
+                  isActive ? 'font-black text-cyan-300' : 'font-medium text-slate-400'
                 }`}
               >
                 {item.label}

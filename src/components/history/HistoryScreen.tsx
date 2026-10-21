@@ -37,8 +37,8 @@ export const HistoryScreen: React.FC = () => {
   const downloadReceipt = (tx: PaymentTransaction) => {
     const text = `
 ==============================================================
-             BLUEWAVE RECHARGE & TELECOM SERVICES
-                 TAX INVOICE / CASH RECEIPT
+             BLUEWAVE SIGNATURE TELECOM SERVICES
+                 GST TAX INVOICE & CASH RECEIPT
 ==============================================================
 Invoice Number:    ${tx.invoiceNumber}
 Date of Recharge:  ${new Date(tx.timestamp).toLocaleString('en-IN')}
@@ -69,26 +69,26 @@ Customer Care: 1800-889-9999 | care@bluewave.in
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 animate-fade-in">
       {/* Top Heading */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">
             Statements & Activity
           </span>
-          <h2 className="text-2xl font-bold text-slate-900">
+          <h2 className="text-2xl font-black text-white">
             Recharge & Data Ledger History
           </h2>
         </div>
 
         {/* View Toggle */}
-        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-2xl w-fit">
+        <div className="flex items-center gap-1 p-1 bg-slate-900/90 border border-white/10 rounded-2xl w-fit">
           <button
             onClick={() => setActiveTab('recharges')}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               activeTab === 'recharges'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
             }`}
           >
             Recharge Invoices ({transactions.length})
@@ -97,8 +97,8 @@ Customer Care: 1800-889-9999 | care@bluewave.in
             onClick={() => setActiveTab('data_ledger')}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               activeTab === 'data_ledger'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
             }`}
           >
             Data Wallet Ledger ({ledger.length})
@@ -116,7 +116,7 @@ Customer Care: 1800-889-9999 | care@bluewave.in
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by invoice number, transaction reference, or plan..."
-              className="w-full pl-11 pr-4 py-3 bg-white rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs text-slate-800 shadow-sm"
+              className="w-full pl-11 pr-4 py-3 bg-slate-900/80 rounded-2xl border border-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 text-xs text-white placeholder-slate-400 shadow-xl transition-all"
             />
           </div>
 
@@ -125,21 +125,21 @@ Customer Care: 1800-889-9999 | care@bluewave.in
             {filteredTransactions.map((tx) => (
               <div
                 key={tx.id}
-                className="bg-white rounded-3xl p-5 border border-slate-200 hover:border-blue-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
+                className="bg-slate-900/85 backdrop-blur-xl rounded-3xl p-5 border border-white/10 hover:border-cyan-500/30 shadow-2xl shadow-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center font-black text-lg shrink-0">
                     ₹
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-slate-900 text-sm">{tx.planName}</h4>
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/50">
+                      <h4 className="font-extrabold text-white text-sm">{tx.planName}</h4>
+                      <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                         {tx.status}
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-slate-400 mt-1">
                       {new Date(tx.timestamp).toLocaleString('en-IN', {
                         day: 'numeric',
                         month: 'short',
@@ -147,24 +147,24 @@ Customer Care: 1800-889-9999 | care@bluewave.in
                         hour: '2-digit',
                         minute: '2-digit',
                       })}{' '}
-                      · Ref: <span className="font-mono text-slate-700">{tx.referenceNumber}</span>
+                      · Ref: <span className="font-mono text-cyan-300">{tx.referenceNumber}</span>
                     </p>
 
-                    <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                    <p className="text-xs text-slate-300 mt-0.5 font-medium">
                       {tx.paymentDetails}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100">
-                  <span className="text-xl font-black text-slate-900 tabular-nums">
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-3 sm:pt-0 border-t sm:border-0 border-white/10">
+                  <span className="text-2xl font-black text-white font-mono tabular-nums">
                     ₹{tx.amount}
                   </span>
                   <button
                     onClick={() => downloadReceipt(tx)}
-                    className="px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl border border-white/10 hover:bg-white/10 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5 text-blue-600" />
+                    <Download className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Tax Receipt</span>
                   </button>
                 </div>
@@ -174,46 +174,46 @@ Customer Care: 1800-889-9999 | care@bluewave.in
         </div>
       ) : (
         /* Data Wallet Activity Ledger */
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="bg-slate-900/85 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl shadow-black/40 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-white/10">
             <div>
-              <h3 className="font-bold text-slate-900 text-sm">Chronological Data Ledger</h3>
-              <p className="text-xs text-slate-500">Every byte issuance, usage, and rollover event</p>
+              <h3 className="font-black text-white text-sm">Chronological Data Ledger</h3>
+              <p className="text-xs text-slate-400">Every byte issuance, usage, and rollover event</p>
             </div>
-            <span className="text-xs font-mono text-slate-400">ISO-8601 Timestamps</span>
+            <span className="text-xs font-mono text-cyan-400">ISO-8601 Timestamps</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
             {ledger.map((item) => (
               <div
                 key={item.id}
-                className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs"
+                className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 flex items-center justify-between text-xs hover:border-white/20 transition-colors"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">{item.type}</span>
-                    <span className="text-slate-300">·</span>
-                    <span className="text-slate-500">
+                    <span className="font-bold text-white">{item.type}</span>
+                    <span className="text-slate-600">·</span>
+                    <span className="text-slate-400 font-mono">
                       {new Date(item.timestamp).toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <p className="text-slate-600 mt-1">{item.description}</p>
+                  <p className="text-slate-300 mt-1">{item.description}</p>
                 </div>
 
                 <div className="text-right">
                   <span
                     className={`font-mono font-bold text-sm tabular-nums ${
                       item.type === 'ROLLOVER'
-                        ? 'text-emerald-600'
+                        ? 'text-emerald-400'
                         : item.type === 'USAGE'
-                        ? 'text-slate-700'
-                        : 'text-blue-600'
+                        ? 'text-slate-400'
+                        : 'text-cyan-400'
                     }`}
                   >
                     {item.type === 'USAGE' ? '-' : '+'}
                     {formatBytes(item.amountBytes)}
                   </span>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">
                     Saved Balance: {formatBytes(item.newCarryForwardBytes)}
                   </p>
                 </div>

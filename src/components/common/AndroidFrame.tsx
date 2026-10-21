@@ -42,19 +42,19 @@ export const AndroidFrame: React.FC<AndroidFrameProps> = ({ children }) => {
         <div className="absolute -right-1 top-28 w-1 h-16 bg-slate-700 rounded-r-sm" />
 
         {/* Screen Container */}
-        <div className="relative w-full h-full bg-slate-50 rounded-[40px] overflow-hidden flex flex-col border border-slate-800">
+        <div className="relative w-full h-full bg-[#060B14] rounded-[40px] overflow-hidden flex flex-col border border-white/10">
           {/* Android Status Bar */}
-          <div className="bg-white/95 backdrop-blur-md px-6 pt-3 pb-2 flex items-center justify-between text-xs font-semibold text-slate-800 select-none z-30 shrink-0">
-            <span>12:45</span>
+          <div className="bg-slate-950/95 backdrop-blur-md px-6 pt-3 pb-2 flex items-center justify-between text-xs font-bold text-slate-200 select-none z-30 shrink-0 border-b border-white/5">
+            <span className="font-mono">12:45</span>
             {/* Camera Punch Hole */}
-            <div className="w-4 h-4 rounded-full bg-black mx-auto ring-2 ring-slate-800/40" />
-            <div className="flex items-center gap-1.5 text-slate-700">
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1 rounded">
+            <div className="w-4 h-4 rounded-full bg-black mx-auto ring-2 ring-slate-800/60" />
+            <div className="flex items-center gap-1.5 text-slate-300">
+              <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-500/30 px-1.5 rounded">
                 5G
               </span>
-              <Signal className="w-3.5 h-3.5" />
-              <Wifi className="w-3.5 h-3.5" />
-              <BatteryMedium className="w-4 h-4" />
+              <Signal className="w-3.5 h-3.5 text-cyan-400" />
+              <Wifi className="w-3.5 h-3.5 text-cyan-400" />
+              <BatteryMedium className="w-4 h-4 text-emerald-400" />
             </div>
           </div>
 

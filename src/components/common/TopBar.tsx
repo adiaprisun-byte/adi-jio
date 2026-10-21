@@ -34,6 +34,7 @@ export const TopBar: React.FC<TopBarProps> = ({ activeTab, setActiveTab }) => {
     setViewMode,
     isDemoMode,
     toggleDemoMode,
+    profileWallet,
   } = useTelecom();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -43,6 +44,7 @@ export const TopBar: React.FC<TopBarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'home', label: t.home },
     { id: 'recharge', label: t.recharge },
     { id: 'mydata', label: t.myData },
+    { id: 'market', label: t.dataMarket },
     { id: 'history', label: t.history },
     { id: 'profile', label: t.profile },
   ];
@@ -90,14 +92,14 @@ export const TopBar: React.FC<TopBarProps> = ({ activeTab, setActiveTab }) => {
       </div>
 
       {/* Main Header strictly adhering to Top Bar Contract: 3 zones separated by gap-8 */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200">
+      <header className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-8">
           {/* Zone 1: Brand wordmark (single text element wordmark with wave glyph) */}
           <button
             onClick={() => setActiveTab('home')}
-            className="flex items-center gap-2 text-left whitespace-nowrap shrink-0 group cursor-pointer"
+            className="flex items-center gap-2.5 text-left whitespace-nowrap shrink-0 group cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-sky-400 flex items-center justify-center text-white shadow-sm shadow-blue-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform border border-white/20">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -112,47 +114,60 @@ export const TopBar: React.FC<TopBarProps> = ({ activeTab, setActiveTab }) => {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-tight text-blue-900 leading-none">
-                BlueWave<span className="text-blue-600">.</span>
+              <span className="text-xl font-black tracking-tight text-white leading-none">
+                BlueWave<span className="text-cyan-400">.</span>
               </span>
-              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                Telecom 5G
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                Signature 5G
               </span>
             </div>
           </button>
 
           {/* Zone 2: 4-5 single-line clean text navigation links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <nav className="hidden md:flex items-center gap-7 text-sm font-semibold">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`relative py-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`relative py-1 transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                     isActive
-                      ? 'text-blue-600 font-bold'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'text-cyan-400 font-extrabold'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
                   {item.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full shadow-sm shadow-cyan-400/50" />
                   )}
                 </button>
               );
             })}
           </nav>
 
-          {/* Zone 3: 1 primary action area (Notifications, Language & Quick Action) */}
+          {/* Zone 3: 1 primary action area (Wallet, Notifications, Language & Quick Action) */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Wallet Quick Pill */}
+            <button
+              onClick={() => setActiveTab('profile')}
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 transition-all cursor-pointer"
+              title="View BlueWave Wallet in Profile"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-slate-400 font-medium">Wallet:</span>
+              <span className="text-white font-mono font-bold">
+                ₹{profileWallet.cashBalanceInr + profileWallet.telecomCreditBalanceInr}
+              </span>
+            </button>
+
             {/* Language Switcher */}
             <button
               onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               title="Switch language between English and Hindi"
             >
-              <Globe className="w-3.5 h-3.5 text-blue-600" />
+              <Globe className="w-3.5 h-3.5 text-cyan-400" />
               <span>{language === 'en' ? 'हिन्दी' : 'English'}</span>
             </button>
 
@@ -165,34 +180,34 @@ export const TopBar: React.FC<TopBarProps> = ({ activeTab, setActiveTab }) => {
                     markNotificationsRead();
                   }
                 }}
-                className="relative p-2 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                className="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 border border-white/5 transition-colors cursor-pointer"
                 aria-label="View notifications"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-cyan-400 ring-2 ring-slate-950" />
                 )}
               </button>
 
               {/* Notification Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-50">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 p-4 z-50">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-900">Notifications</span>
-                      <span className="text-xs bg-blue-50 text-blue-600 font-semibold px-2 py-0.5 rounded-full">
+                      <span className="text-sm font-black text-white">Notifications</span>
+                      <span className="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold px-2 py-0.5 rounded-full">
                         {notifications.length}
                       </span>
                     </div>
                     <button
                       onClick={() => setShowNotifications(false)}
-                      className="text-slate-400 hover:text-slate-600 p-1"
+                      className="text-slate-400 hover:text-white p-1 rounded-lg"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+                  <div className="mt-3 space-y-2 max-h-80 overflow-y-auto pr-1">
                     {notifications.length === 0 ? (
                       <p className="text-xs text-slate-400 text-center py-6">
                         No notifications right now
@@ -201,23 +216,23 @@ export const TopBar: React.FC<TopBarProps> = ({ activeTab, setActiveTab }) => {
                       notifications.map((notif) => (
                         <div
                           key={notif.id}
-                          className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs relative group"
+                          className="p-3 rounded-xl bg-slate-950/70 border border-white/10 text-xs relative group hover:border-white/20 transition-colors"
                         >
                           <div className="flex items-start justify-between gap-2">
-                            <span className="font-semibold text-slate-900">
+                            <span className="font-bold text-white">
                               {notif.title}
                             </span>
                             <button
                               onClick={() => dismissNotification(notif.id)}
-                              className="text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="text-slate-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-0.5"
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          <p className="text-slate-600 mt-1 leading-relaxed">
+                          <p className="text-slate-300 mt-1 leading-relaxed">
                             {notif.message}
                           </p>
-                          <span className="text-[10px] text-slate-400 mt-2 block">
+                          <span className="text-[10px] text-cyan-400 mt-2 block font-medium">
                             Just now · BlueWave Network
                           </span>
                         </div>

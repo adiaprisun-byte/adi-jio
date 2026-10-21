@@ -54,7 +54,9 @@ export type LedgerEventType =
   | 'ROLLOVER'
   | 'EXPIRY'
   | 'ADJUSTMENT'
-  | 'ADD_ON';
+  | 'ADD_ON'
+  | 'DATA_SOLD'
+  | 'DATA_BOUGHT';
 
 export interface LedgerEntry {
   id: string;
@@ -68,6 +70,72 @@ export interface LedgerEntry {
   description: string;
   idempotencyKey?: string;
   dayNumber: number; // simulated day index
+}
+
+export interface P2PListing {
+  id: string;
+  sellerName: string;
+  sellerMaskedMobile: string;
+  amountBytes: number;
+  priceInr: number;
+  status: 'ACTIVE' | 'SOLD' | 'CANCELLED';
+  createdTimestamp: number;
+  expiresTimestamp: number;
+  verifiedNetwork: string; // e.g. "BlueWave 5G"
+  isOwnListing?: boolean;
+}
+
+export interface GlobalCountryMarket {
+  id: string;
+  countryName: string;
+  countryCode: string;
+  flag: string;
+  typicalRetailCostUsdPerGb: number;
+  payoutInrPerGb: number;
+  payoutUsdEquivalent: number;
+  demandStatus: 'Critical Demand' | 'High Demand' | 'Surge Pricing';
+  activeRoamersCount: number;
+  description: string;
+}
+
+export interface P2PTradeRecord {
+  id: string;
+  timestamp: number;
+  type: 'SELL_DOMESTIC' | 'SELL_GLOBAL' | 'BUY_PEER';
+  amountBytes: number;
+  amountInr: number;
+  counterparty: string;
+  countryOrPeer: string;
+  status: 'COMPLETED' | 'PROCESSING';
+  payoutMethod: string;
+}
+
+export interface WalletTransactionRecord {
+  id: string;
+  timestamp: number;
+  type: 'TOPUP' | 'WITHDRAWAL' | 'DATA_SALE' | 'GLOBAL_EXPORT' | 'RECHARGE_PAYMENT' | 'CASHBACK';
+  amountInr: number;
+  description: string;
+  referenceId: string;
+  status: 'SUCCESS' | 'PROCESSING';
+}
+
+export interface TelecomProfileWallet {
+  cashBalanceInr: number;
+  telecomCreditBalanceInr: number;
+  autoRechargeEnabled: boolean;
+  linkedUpiVpa: string;
+  tierStatus: 'BlueWave Signature Diamond' | 'Platinum Member';
+  transactions: WalletTransactionRecord[];
+}
+
+export interface UserEarningsWallet {
+  cashBalanceInr: number;
+  totalEarnedInr: number;
+  totalDataSoldBytes: number;
+  totalDataBoughtBytes: number;
+  payoutUpiId: string;
+  recentTrades: P2PTradeRecord[];
 }
 
 export interface CarryForwardBucket {

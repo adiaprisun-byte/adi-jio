@@ -74,8 +74,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     if (!completedTx) return;
     const content = `
 ==============================================================
-             BLUEWAVE TELECOM PRIVATE LIMITED
-       GST Tax Invoice & Electronic Recharge Receipt
+             BLUEWAVE SIGNATURE TELECOM SERVICES
+        GST Tax Invoice & Electronic Recharge Receipt
 ==============================================================
 Invoice Number:    ${completedTx.invoiceNumber}
 Date & Time:       ${new Date(completedTx.timestamp).toLocaleString('en-IN')}
@@ -117,136 +117,136 @@ Support: 1800-889-9999 | support@bluewave.in
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+      <div className="bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
         {completedTx ? (
-          /* Success Screen */
+          /* Success Screen in Obsidian Glass */
           <div className="text-center py-4 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
             <div>
-              <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
+              <span className="text-xs font-black text-emerald-400 uppercase tracking-widest bg-emerald-950/80 border border-emerald-500/30 px-3 py-0.5 rounded-full">
                 Recharge Successful
               </span>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1">
+              <h2 className="text-3xl font-black text-white font-mono mt-2 tracking-tight">
                 ₹{plan.price} Activated
               </h2>
-              <p className="text-sm text-slate-500 mt-1">
-                {plan.name} is now active on {userProfile.mobileNumber}
+              <p className="text-xs text-slate-300 mt-1">
+                {plan.name} is now active on <span className="font-mono text-cyan-300 font-bold">{userProfile.mobileNumber}</span>
               </p>
             </div>
 
             {/* Summary Details */}
-            <div className="bg-slate-50 rounded-2xl p-4 text-left space-y-2 border border-slate-100 text-xs">
-              <div className="flex justify-between text-slate-600">
+            <div className="bg-slate-950/70 rounded-2xl p-4 text-left space-y-2 border border-white/10 text-xs">
+              <div className="flex justify-between text-slate-400">
                 <span>Transaction Ref</span>
-                <span className="font-mono font-medium text-slate-900">
+                <span className="font-mono font-bold text-cyan-300">
                   {completedTx.referenceNumber}
                 </span>
               </div>
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-slate-400">
                 <span>Validity</span>
-                <span className="font-semibold text-slate-900">
+                <span className="font-bold text-white">
                   {plan.validityDays} Days
                 </span>
               </div>
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-slate-400">
                 <span>Data Allowance</span>
-                <span className="font-semibold text-slate-900">
+                <span className="font-bold text-white font-mono">
                   {plan.dailyDataBytes ? `${formatBytes(plan.dailyDataBytes)} / Day` : formatBytes(plan.totalDataBytes || 0)}
                 </span>
               </div>
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-slate-400">
                 <span>Payment Mode</span>
-                <span className="font-medium text-slate-900">
+                <span className="font-medium text-white">
                   {completedTx.paymentDetails}
                 </span>
               </div>
               {plan.carryForwardEligible && (
-                <div className="pt-2 border-t border-slate-200 flex items-center gap-1.5 text-blue-700 font-semibold">
-                  <Sparkles className="w-4 h-4 text-blue-600" />
+                <div className="pt-2 border-t border-white/10 flex items-center gap-1.5 text-emerald-300 font-bold">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
                   <span>Smart Carry Forward Data Wallet is active</span>
                 </div>
               )}
             </div>
 
             {/* Actions */}
-            <div className="pt-2 space-y-2">
+            <div className="pt-2 space-y-2.5">
               <button
                 onClick={handleDownloadInvoice}
-                className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white text-xs font-black flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
               >
                 <Download className="w-4 h-4" />
-                Download Tax Invoice (Receipt)
+                Download GST Tax Receipt
               </button>
               <button
                 onClick={onClose}
-                className="w-full py-3 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer"
               >
                 Done
               </button>
             </div>
           </div>
         ) : (
-          /* Payment Selection Screen */
+          /* Payment Selection Screen in Obsidian Glass */
           <div className="space-y-5">
             {/* Modal Header */}
-            <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-start justify-between pb-3 border-b border-white/10">
               <div>
-                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
-                  Recharge Order Confirmation
+                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">
+                  Order Confirmation
                 </span>
-                <h3 className="text-xl font-bold text-slate-900">
+                <h3 className="text-xl font-black text-white">
                   ₹{plan.price} Recharge
                 </h3>
               </div>
               <button
                 onClick={onClose}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Plan Snapshot Card */}
-            <div className="bg-blue-50/70 rounded-2xl p-4 border border-blue-100">
+            <div className="bg-slate-950/70 rounded-2xl p-4 border border-white/10">
               <div className="flex justify-between items-start">
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm">{plan.name}</h4>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    For {userProfile.maskedMobile} ({userProfile.circle})
+                  <h4 className="font-bold text-white text-sm">{plan.name}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    For <span className="font-mono text-cyan-300 font-semibold">{userProfile.maskedMobile}</span> ({userProfile.circle})
                   </p>
                 </div>
-                <span className="text-lg font-black text-blue-700 tabular-nums">
+                <span className="text-2xl font-black text-white font-mono tabular-nums">
                   ₹{plan.price}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-blue-200/50 text-center">
-                <div className="bg-white/80 rounded-lg py-1.5 px-2">
-                  <span className="text-[10px] text-slate-500 block">Validity</span>
-                  <span className="text-xs font-bold text-slate-800">
+              <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-center">
+                <div className="bg-white/5 rounded-xl py-2 px-2 border border-white/5">
+                  <span className="text-[10px] text-slate-400 block font-semibold">Validity</span>
+                  <span className="text-xs font-bold text-white font-mono">
                     {plan.validityDays} Days
                   </span>
                 </div>
-                <div className="bg-white/80 rounded-lg py-1.5 px-2">
-                  <span className="text-[10px] text-slate-500 block">Data</span>
-                  <span className="text-xs font-bold text-slate-800">
+                <div className="bg-white/5 rounded-xl py-2 px-2 border border-white/5">
+                  <span className="text-[10px] text-slate-400 block font-semibold">Data</span>
+                  <span className="text-xs font-bold text-cyan-300 font-mono">
                     {plan.dailyDataBytes ? `${formatBytes(plan.dailyDataBytes)}/day` : formatBytes(plan.totalDataBytes || 0)}
                   </span>
                 </div>
-                <div className="bg-white/80 rounded-lg py-1.5 px-2">
-                  <span className="text-[10px] text-slate-500 block">Voice</span>
-                  <span className="text-xs font-bold text-slate-800">Unlimited</span>
+                <div className="bg-white/5 rounded-xl py-2 px-2 border border-white/5">
+                  <span className="text-[10px] text-slate-400 block font-semibold">Voice</span>
+                  <span className="text-xs font-bold text-emerald-400">Unlimited</span>
                 </div>
               </div>
             </div>
 
             {/* Payment Method Selector */}
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-2">
+              <label className="text-xs font-bold text-slate-300 block mb-2">
                 Select Payment Mode (Sandbox Demo)
               </label>
 
@@ -256,11 +256,11 @@ Support: 1800-889-9999 | support@bluewave.in
                   onClick={() => setPaymentMethod('UPI')}
                   className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
                     paymentMethod === 'UPI'
-                      ? 'border-blue-600 bg-blue-50/50 text-blue-900 ring-1 ring-blue-600'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                      ? 'border-cyan-400 bg-cyan-950/50 text-white ring-1 ring-cyan-400 shadow-sm'
+                      : 'border-white/10 hover:border-white/20 text-slate-400 bg-slate-950/50'
                   }`}
                 >
-                  <QrCode className="w-4 h-4 text-blue-600" />
+                  <QrCode className="w-4 h-4 text-cyan-400" />
                   <span className="text-xs font-bold">UPI / QR</span>
                 </button>
 
@@ -269,19 +269,19 @@ Support: 1800-889-9999 | support@bluewave.in
                   onClick={() => setPaymentMethod('CARD')}
                   className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
                     paymentMethod === 'CARD'
-                      ? 'border-blue-600 bg-blue-50/50 text-blue-900 ring-1 ring-blue-600'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                      ? 'border-cyan-400 bg-cyan-950/50 text-white ring-1 ring-cyan-400 shadow-sm'
+                      : 'border-white/10 hover:border-white/20 text-slate-400 bg-slate-950/50'
                   }`}
                 >
-                  <CreditCard className="w-4 h-4 text-blue-600" />
-                  <span className="text-xs font-bold">Debit / Credit Card</span>
+                  <CreditCard className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs font-bold">Card Payment</span>
                 </button>
               </div>
 
               {/* UPI Options */}
               {paymentMethod === 'UPI' && (
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
-                  <span className="text-[11px] font-semibold text-slate-600 block">
+                <div className="p-3 bg-slate-950/70 rounded-2xl border border-white/10 space-y-2">
+                  <span className="text-[11px] font-bold text-slate-400 block">
                     Choose UPI App
                   </span>
                   <div className="grid grid-cols-2 gap-2">
@@ -290,15 +290,15 @@ Support: 1800-889-9999 | support@bluewave.in
                         key={app}
                         type="button"
                         onClick={() => setSelectedUpiApp(app)}
-                        className={`py-2 px-3 rounded-lg text-xs font-medium border text-left flex items-center justify-between cursor-pointer ${
+                        className={`py-2 px-3 rounded-xl text-xs font-bold border text-left flex items-center justify-between cursor-pointer transition-all ${
                           selectedUpiApp === app
-                            ? 'bg-white border-blue-600 text-blue-700 shadow-sm'
-                            : 'bg-white/60 border-slate-200 text-slate-600 hover:bg-white'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-sm'
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
                         }`}
                       >
                         <span>{app}</span>
                         {selectedUpiApp === app && (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
                         )}
                       </button>
                     ))}
@@ -308,13 +308,13 @@ Support: 1800-889-9999 | support@bluewave.in
 
               {/* Card Options */}
               {paymentMethod === 'CARD' && (
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2 text-xs">
-                  <div className="p-2.5 rounded-lg bg-white border border-slate-200 flex items-center justify-between">
+                <div className="p-3 bg-slate-950/70 rounded-2xl border border-white/10 space-y-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-slate-800">HDFC Bank Debit Card</p>
-                      <p className="text-[11px] text-slate-500">•••• •••• •••• 4419 (Demo Card)</p>
+                      <p className="font-bold text-white">HDFC Bank Debit Card</p>
+                      <p className="text-[11px] text-slate-400 font-mono">•••• •••• •••• 4419 (Demo Card)</p>
                     </div>
-                    <span className="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded">
+                    <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-bold px-2 py-0.5 rounded border border-cyan-500/30">
                       VERIFIED
                     </span>
                   </div>
@@ -326,8 +326,8 @@ Support: 1800-889-9999 | support@bluewave.in
             </div>
 
             {/* Sandbox Notice & Security */}
-            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl text-slate-600 text-[11px]">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-2 p-3 bg-slate-950/70 rounded-xl text-slate-400 text-[11px] border border-white/10">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>
                 256-bit Simulated Secure Checkout · Idempotent Transaction Processing
               </span>
@@ -337,7 +337,7 @@ Support: 1800-889-9999 | support@bluewave.in
             <button
               onClick={handlePay}
               disabled={isProcessing}
-              className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-sm shadow-md shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 disabled:opacity-40 text-white font-black text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isProcessing ? (
                 <>
